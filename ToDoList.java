@@ -1,48 +1,50 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ToDoList {
     
     private String category;
-    private List<Task> tasksToDo;
-    private List<Task> tasksDone; //TODO: Do I want this list? It will be nice if I want to show all the done tasks.
+    private int lastUsedId;
+    private Map<Integer,Task> tasks;
+    private Map<Integer,Task> tasksDone; //TODO: Do I want this list? It will be nice if I want to show all the done tasks.
 
     public ToDoList (String category) {
         this.category = category;
-        this.tasksToDo = new ArrayList<Task>();
-        this.tasksDone = new ArrayList<Task>();
+        this.lastUsedId = 0;
+        this.tasks = new TreeMap<>();
+        this.tasksDone = new TreeMap<>();
     }
 
     public void addTask (String name) {
-        if (!this.containsTask(name)) {
-            Task taskToAdd = new Task(name, false);
-            tasksToDo.add(taskToAdd);
+        //if (!this.containsTask(name)) {
+            Task taskToAdd = new Task(this.lastUsedId+1, name, false);
+            tasks.put(this.lastUsedId+1,taskToAdd);
+            lastUsedId++;
+        //}
+    }
+
+	public void deleteTaskById (int id) {
+        if (tasks.containsKey(id)) {
+            tasks.remove(id);
         }
     }
 
-	public void deleteTask (String name) {
-        if (this.containsTask(name)) {
-            Task taskToDelete = getTask(name);
-            tasksToDo.remove(taskToDelete);
-        }
-    }
-
-	public void MarkAsDone(String name) {
-        Task taskToMarkDone = getTask(name);
+	public void MarkAsDone(int id) {
+        Task taskToMarkDone = tasks.get(id);
         taskToMarkDone.setDone(true);
-        tasksToDo.remove(taskToMarkDone);
-        tasksDone.add(taskToMarkDone);
+        tasksDone.put(id,taskToMarkDone);
+        tasks.remove(id);
     }
 
-	public void MarkAsToDo(String name) {
-        Task taskToMarkToDo = getTask(name);
+	public void MarkAsToDo(int id) {
+        Task taskToMarkToDo = tasksDone.get(id);
         taskToMarkToDo.setDone(false);
-        tasksDone.remove(taskToMarkToDo);
-        tasksToDo.add(taskToMarkToDo);
+        tasks.put(id,taskToMarkToDo);
+        tasksDone.remove(id);
     }
     
-    public void renameTask(String oldName, String newName) {
-        Task taskToRename = getTask(oldName);
+    public void renameTask(int id, String newName) {
+        Task taskToRename = tasks.get(id);
         taskToRename.setName(newName);
     }
 
@@ -50,44 +52,45 @@ public class ToDoList {
         this.category = newCategory;
     }
 
-    private boolean containsTask(String name) {
-        for (Task t: tasksToDo) {
-            if (t.getName() == name) return true;
-        }
-        return false;
+    private boolean containsTask(int id) {
+        return tasks.containsKey(id);
     }
 
-    private Task getTask(String name) {
-        Task taskToGet = null;
-        for (Task t: tasksToDo) {
-            if (t.getName() == name) taskToGet = t;
-        } 
-        return taskToGet;
+    private Task getTask(int id) {
+        return tasks.get(id);
     }
 
     public String toString() {
         String s = "Category: " + this.category + "\n\n";
-        for (Task t: tasksToDo) {
-            s = s + t.getName() + "\n";
+        s += "<To Do>\n";
+        for (int id: tasks.keySet()) {
+            Task t = tasks.get(id);
+            s += id + ". " + t.getName() + "\n";
+        }
+        if (tasksDone.size() > 0) {
+            s += "\n<Done>\n";
+            for (int id: tasksDone.keySet()) {
+                Task t = tasksDone.get(id);
+                s += id + ". " + t.getName() + "\n";
+            }
         }
         return s;
-        //TODO: Maybe I want to see the list with index numbers.
     }
 
     public static void main(String[] args) {
         ToDoList td = new ToDoList("ToDoList");
-        td.addTask("1. Connect to Database");
-        td.addTask("2. Make unit tests");
-        td.addTask("3. Refactor");
-        td.addTask("4. Make web browser UI");
+        td.addTask("Connect to Database");
+        td.addTask("Make unit tests");
+        td.addTask("Refactor");
+        td.addTask("Make web browser UI");
         System.out.println(td);
 
-        td.renameTask("3. Refactor", "3. Decide if I want 2 lists in the field");
-        td.deleteTask("1. Connect to Database");
-        td.addTask("5. Check if the current code works");
+        td.renameTask(3, "Decide if I want 2 lists in the field");
+        td.deleteTaskById(1);
+        td.addTask("Check if the current code works");
         System.out.println(td);
 
-        td.MarkAsDone("5. Check if the current code works");
+        td.MarkAsDone(5);
         System.out.println(td);
     }
 }

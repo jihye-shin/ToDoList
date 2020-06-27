@@ -1,9 +1,11 @@
 public class Task {
 
+    private int id;
     private String name;
     private boolean isDone;
 
-    public Task (String name, boolean isDone) {
+    public Task (int id, String name, boolean isDone) {
+        this.id = id;
         this.name = name;
         this.isDone = isDone;
     }
@@ -22,5 +24,13 @@ public class Task {
 
     public void setDone(boolean isDone) {
         this.isDone = isDone;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
